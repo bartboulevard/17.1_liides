@@ -1,0 +1,6 @@
+.idea
+node_modules
+```
+# Project exclude paths
+/H.js
+/H.test.js

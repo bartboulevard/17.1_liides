@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculator Figure</title>
+    <style>
+        canvas {
+            border: 1px solid black;
+        }
+    </style>
+</head>
+<body>
+<h1>Calculator Figure</h1>
+<label for="calculatorSelect">Select Calculator:</label>
+<select id="calculatorSelect">
+    <option value="inchesToCm">Inches to Centimeters</option>
+    <option value="kmToMps">Kilometers per Hour to Meters per Second</option>
+    <option value="resistanceToCurrent">Resistance to Current</option>
+</select>
+<canvas id="myCanvas" width="400" height="400"></canvas>
+
+<script>
+    var InchesToCm = /** @class */ (function () {
+        function InchesToCm() {
+        }
+        InchesToCm.prototype.calculate = function (inches) {
+            return inches * 2.54;
+        };
+        InchesToCm.prototype.inputUnit = function () {
+            return "in";
+        };
+        InchesToCm.prototype.outputUnit = function () {
+            return "cm";
+        };
+        return InchesToCm;
+    }());
+    var KphToMps = /** @class */ (function () {
+        function KphToMps() {
+        }
+        KphToMps.prototype.calculate = function (kph) {
+            return kph / 3.6;
+        };
+        KphToMps.prototype.inputUnit = function () {
+            return "km/h";
+        };
+        KphToMps.prototype.outputUnit = function () {
+            return "m/s";
+        };
+        return KphToMps;
+    }());
+    var ResistanceToCurrent = /** @class */ (function () {
+        function ResistanceToCurrent(voltage, resistance) {
+            this.voltage = voltage;
+            this.resistance = resistance;
+        }
+        ResistanceToCurrent.prototype.calculate = function (x) {
+            return this.voltage / this.resistance;
+        };
+        ResistanceToCurrent.prototype.inputUnit = function () {
+            return "V";
+        };
+        ResistanceToCurrent.prototype.outputUnit = function () {
+            return "A";
+        };
+        return ResistanceToCurrent;
+    }());
+    var Figure = /** @class */ (function () {
+        function Figure(calculator, g) {
+            this.calculator = calculator;
+            this.g = g;
+            this.draw();
+        }
+        Figure.prototype.draw = function () {
+            this.g.clearRect(0, 0, this.g.canvas.width, this.g.canvas.height);
+            this.g.fillStyle = "black";
+            var points = [];
+            for (var i = 0; i <= 20; i += 2) {
+                var x = 20 * i;
+                var y = this.g.canvas.height - 40 * this.calculator.calculate(i);
+                points.push({ x: x, y: y });
+                this.g.fillRect(x, y, 5, 5);
+                this.g.fillText(i.toString(), x, this.g.canvas.height - 5);
+                this.g.fillText(this.calculator.calculate(i).toFixed(1), 5, y - 5);
+            }
+            this.g.fillText(this.calculator.inputUnit(), this.g.canvas.width - 30, this.g.canvas.height - 5);
+            this.g.fillText(this.calculator.outputUnit(), 5, this.g.canvas.height - 40 * this.calculator.calculate(20) - 5);
+            this.g.beginPath();
+            this.g.moveTo(points[0].x, points[0].y);
+            for (var i = 1; i < points.length; i++) {
+                this.g.lineTo(points[i].x, points[i].y);
+            }
+            this.g.strokeStyle = "blue";
+            this.g.stroke();
+        };
+        return Figure;
+    }());
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    var calculatorSelect = document.getElementById("calculatorSelect");
+    var inchesToCm = new InchesToCm();
+    var kphToMps = new KphToMps();
+    var resistanceToCurrent = null;
+    function updateFigure() {
+        var selectedCalculator = calculatorSelect.value;
+        if (selectedCalculator === "inchesToCm") {
+            var figure = new Figure(inchesToCm, ctx);
+        }
+        else if (selectedCalculator === "kmToMps") {
+            var figure = new Figure(kphToMps, ctx);
+        }
+        else if (selectedCalculator === "resistanceToCurrent") {
+            var voltage = parseFloat(prompt("Enter voltage:"));
+            var resistance = parseFloat(prompt("Enter resistance:"));
+            resistanceToCurrent = new ResistanceToCurrent(voltage, resistance);
+            if (!isNaN(voltage) && !isNaN(resistance)) {
+                var figure = new Figure(resistanceToCurrent, ctx);
+            }
+            else {
+                alert("Invalid input. Please enter valid numbers for voltage and resistance.");
+            }
+        }
+    }
+    calculatorSelect.addEventListener("change", updateFigure);
+    updateFigure();
+
+</script>
+</body>
+</html>
